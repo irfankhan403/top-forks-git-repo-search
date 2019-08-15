@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const getRepoList = (searchValue) => {
-    return axios.get(`https://api.github.com/search/repositories?q={${searchValue}}&sort=forks`)
+const getRepoList = (query) => {
+    return axios.get(`https://api.github.com/search/repositories`,{params:query})
         .then((res) => {
             return Promise.resolve(res);
         });

@@ -1,14 +1,12 @@
 
 import { gitRepoService } from '../services/gitRepoService';
-import { SET_REPO_LIST } from '../types/gitRepoType';
+// import { SET_REPO_LIST } from '../types/gitRepoType';
 
 const getRepoList = (searchValue) => (dispatch) => {
-	const success = (list) =>
-		({ type: 'SET_REPO_LIST', data:list });
+	const success = (data) =>
+		({ type: 'SET_REPO_LIST', data });
         gitRepoService.getRepoList(searchValue).then((res) => { 
-            let repoList = res.data.items;
-            console.log(repoList );
-            dispatch(success(repoList)) });
+            dispatch(success(res.data)) });
 }
 
 

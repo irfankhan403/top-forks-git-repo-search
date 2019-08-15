@@ -1,106 +1,78 @@
-import React, { Component } from 'react';
-import {connect} from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
 import {
-    Container,
-    TextField,
-    Paper,
-    IconButton,
-    InputBase,
-    Divider,
-    withStyles,
-    createStyles,
-    Avatar
-} from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
-import RepoList from '../components/RepoList';
-import {getRepoList} from '../actions/gitRepoList'
+  Container,
+  Typography,
+  withStyles,
+  createStyles,
+} from "@material-ui/core";
+import RepoList from "../components/RepoList";
+import SearchBox from "../components/SearchBox"
+import { getRepoList } from "../actions/gitRepoList";
 
 const useStyles = createStyles({
-    root: {
-      padding: '2px 4px',
-      display: 'flex',
-      alignItems: 'center',
-      marginTop:'5%'
-    },
-    input: {
-      marginLeft: 8,
-      flex: 1,
-    },
-    iconButton: {
-      padding: 10,
-    },
-    form:{
-        flex: 1,
-        display: 'flex',
-    },
-    avatar: {
-      margin: 10,
-    },
-    bigAvatar: {
-      margin: 10,
-      width: 60,
-      height: 60,
-    },
-
-  });
-  
-
-class Home extends Component {
-    state ={
-      searchValue :'',
-    }
-
-    handleChange=(e)=>{
-      let {name,value} = e.target;
-      this.setState({
-        [name]: value
-      });
-    }
-
-    handleSubmit=(e)=>{
-      e.preventDefault();
-      let {searchValue} = this.state;
-      this.props.getRepoList(searchValue);
-    }
-
-    render() {
-      const {searchValue} = this.state;
-        const {classes} = this.props;
-        return (
-                <Container fixed>
-                     <Paper className={classes.root}>
-                     <form className={classes.form} onSubmit={(e)=>this.handleSubmit(e)}>
-                        <InputBase
-                            className={classes.input}
-                            name='searchValue'
-                            value={searchValue}
-                            onChange={(e)=>this.handleChange(e)}
-                            placeholder="Search repo"
-                            inputProps={{ 'aria-label': 'search repo' }}
-                        />
-                        <IconButton type='submit' className={classes.iconButton} aria-label="search">
-                            <SearchIcon />
-                        </IconButton>
-                        </form>
-                        </Paper>
-
-                        <RepoList/>
-                </Container>
-        )
-    }
-}
-
-const mapStateToProps = (state) => ({
-  repoList:state,
+  searchResult:{
+    marginTop:'10px'
+  }
 });
 
+class Home extends Component {
+  state = {
+    search: "",
+    page: 1,
+    per_page: 20,
+  };
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({
-  getRepoList,
-}, dispatch);
+  handlePage = (page) => {
+    this.setState(prevState => ({ page}),function(){
+      this.searchQueryCall();
+    });
+  };
 
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(useStyles)(Home));
+  searchQueryCall = () =>{
+    let { search, page, per_page } = this.state;
+    let searchQuery = { q: search, sort: "forks", page, per_page };
+    this.props.getRepoList(searchQuery);
+  }
+
+  handleSubmit = (search) => {
+    this.setState(prevState => ({ page:1,search}),function(){
+      this.searchQueryCall();
+    });
+  };
+
+  render() {
+    const { page ,per_page, search} = this.state;
+    const {  totalCount,classes } = this.props;
+    return (
+      <Container fixed>
+        <SearchBox handleSubmit={this.handleSubmit}/>
+        {search&&
+        <Typography className={classes.searchResult}><strong>{totalCount}</strong> result found for <strong>{search}</strong>.</Typography>
+        }
+        <RepoList handlePage={this.handlePage} page={page} per_page={per_page}/>
+      </Container>
+    );
+  }
+}
+
+const mapStateToProps = state => ({
+  totalCount: state.gitRepo.total_count,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getRepoList
+    },
+    dispatch
+  );
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withStyles(useStyles)(Home));
