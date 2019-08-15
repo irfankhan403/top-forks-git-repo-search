@@ -49,7 +49,7 @@ const useStyles = createStyles({
 
 class RepoList extends Component {
   render() {
-    const { classes, repoList, page,total_count,per_page } = this.props;
+    const { classes, repoList, page,total_count,per_page,owner } = this.props;
     return (
       <>
         <div className={classes.listContainer}>
@@ -87,10 +87,10 @@ class RepoList extends Component {
                         {name}
                       </Typography>
                       <Typography>
-                        <strong>Owner : </strong> {full_name}
+                        <strong>Owner : </strong> {owner.login}
                       </Typography>
                       <Typography>
-                        <strong>ForK Count : </strong>
+                        <strong>Fork Count : </strong>
                         {forks_count}
                       </Typography>
                       <Typography>
